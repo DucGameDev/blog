@@ -91,9 +91,21 @@ body {
 .prose pre {
   background: #15140F;
   border-radius: 4px;
-  padding: 22px 24px;
+  padding: 18px 24px 22px;
   margin: 2rem 0;
   overflow-x: auto;
+  position: relative;
+}
+
+.prose pre::before {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3A382E;
+  box-shadow: 14px 0 0 #3A382E, 28px 0 0 #3A382E;
+  margin-bottom: 16px;
 }
 
 .prose pre code {
@@ -114,14 +126,56 @@ body {
   border-radius: 2px;
 }
 
-.prose ul, .prose ol { margin: 0 0 1.5rem; padding-left: 1.5rem; color: #26251D; }
-.prose ul { list-style: disc; }
-.prose ol { list-style: decimal; }
-.prose li { margin-bottom: 0.4rem; }
+.prose ul { margin: 0 0 1.5rem; padding-left: 1.5rem; list-style: disc; color: #26251D; }
+.prose ul li { margin-bottom: 0.4rem; }
+
+/* Custom numbered list with lime counter */
+.prose ol {
+  counter-reset: prose-counter;
+  list-style: none;
+  padding-left: 0;
+  margin: 0 0 1.5rem;
+}
+.prose ol li {
+  counter-increment: prose-counter;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 0.75rem;
+  color: #26251D;
+}
+.prose ol li::before {
+  content: counter(prose-counter, decimal-leading-zero);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 12px;
+  color: oklch(0.7 0.18 125);
+  min-width: 22px;
+  padding-top: 3px;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
 
 .prose img { border-radius: 3px; max-width: 100%; margin: 2rem 0; }
 
 .prose hr { border: none; border-top: 1px solid #E8E7E0; margin: 2.5rem 0; }
+
+/* ── Article body + TOC wrapper ── */
+.article-grid-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+@media (min-width: 640px)  { .article-grid-wrap { padding: 0 1.5rem; } }
+@media (min-width: 1280px) {
+  .article-grid-wrap {
+    max-width: none;
+    margin-left: max(1.5rem, calc(50vw - 360px));
+    margin-right: auto;
+    padding: 0;
+  }
+}
 
 /* ── Placeholder image (design doc pattern) ── */
 .img-placeholder {

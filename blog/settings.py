@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'taggit',
     'django_extensions',
+    'import_export',
     'posts',
 ]
 
@@ -81,7 +82,7 @@ else:
             'PASSWORD': config('DB_PASSWORD', default=''),
             'HOST': config('DB_HOST', default='localhost'),
             'PORT': config('DB_PORT', default='3306'),
-            'OPTIONS': {'charset': 'utf8mb4'},
+            'OPTIONS': {'charset': 'utf8mb4', 'init_command': "SET time_zone='+00:00'"},
         }
     }
 

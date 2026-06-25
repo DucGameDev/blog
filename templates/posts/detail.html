@@ -17,12 +17,6 @@
 {% endblock %}
 
 {% block extra_head %}
-<style>
-  #reading-progress{position:fixed;top:0;left:0;height:3px;width:0%;background:oklch(0.86 0.2 125);z-index:9999;transition:width .1s linear;}
-  #toc a{display:block;padding:4px 0;border-left:2px solid transparent;padding-left:10px;transition:all .15s;}
-  #toc a.active,#toc a:hover{border-left-color:oklch(0.86 0.2 125);color:#15140F;}
-  #toc a.indent{padding-left:20px;}
-</style>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -37,6 +31,25 @@
   "image": "{{ request.scheme }}://{{ request.get_host }}{{ post.thumbnail.url }}"{% endif %}
 }
 </script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/atom-one-dark.min.css">
+<style>
+  /* Override highlight.js colors to match design system */
+  .hljs                          { background:transparent; color:#D8D7CD; }
+  .hljs-comment, .hljs-quote     { color:#8A897E; font-style:italic; }
+  .hljs-string, .hljs-number,
+  .hljs-literal, .hljs-regexp,
+  .hljs-meta .hljs-string        { color:oklch(0.86 0.2 125); }
+  .hljs-keyword, .hljs-selector-tag,
+  .hljs-built_in, .hljs-name,
+  .hljs-tag                      { color:#E8E7DD; font-weight:600; }
+  .hljs-attr, .hljs-attribute,
+  .hljs-variable, .hljs-template-variable { color:oklch(0.86 0.2 125); }
+  .hljs-title, .hljs-section,
+  .hljs-title.function_          { color:#E8E7DD; }
+  .hljs-type, .hljs-class        { color:#E8E7DD; }
+  .hljs-deletion                 { color:#ff6b6b; }
+  .hljs-addition                 { color:oklch(0.86 0.2 125); }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -44,112 +57,123 @@
 
 <main>
 
-  <!-- ARTICLE HEADER -->
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 lg:pt-14 pb-6 sm:pb-9">
-    <div class="flex items-center gap-2 mb-5 sm:mb-7 font-mono text-xs uppercase tracking-wider text-muted-3">
+  <!-- ── ARTICLE HEADER ── -->
+  <div class="max-w-[760px] mx-auto px-4 sm:px-6 pt-12 sm:pt-14 lg:pt-16 pb-8 sm:pb-10">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 mb-5 sm:mb-7 font-mono text-[11px] uppercase tracking-[0.1em] text-muted-3">
       {% if post.category %}
-        <a href="{% url 'posts:category' post.category.slug %}" class="text-ink font-medium hover:text-muted-1 transition-colors">{{ post.category.name }}</a>
+        <a href="{% url 'posts:category' post.category.slug %}" class="text-ink hover:text-muted-3 transition-colors">{{ post.category.name }}</a>
         <span class="text-border-2">/</span>
       {% endif %}
       <span>Bài viết</span>
     </div>
 
-    <h1 class="font-heading font-bold text-ink mb-4 sm:mb-6 text-3xl sm:text-4xl lg:text-5xl" style="line-height:1.06;letter-spacing:-0.025em;">{{ post.title }}</h1>
+    <!-- H1 -->
+    <h1 class="font-heading font-bold text-ink mb-5 sm:mb-6"
+        style="font-size:clamp(1.875rem,5vw,3.25rem);line-height:1.06;letter-spacing:-0.025em;">
+      {{ post.title }}
+    </h1>
 
+    <!-- Sapo -->
     {% if post.excerpt %}
-    <p class="text-muted-1 mb-6 sm:mb-9 leading-relaxed text-base sm:text-lg lg:text-xl">{{ post.excerpt }}</p>
+    <p class="text-muted-1 mb-8 sm:mb-9" style="font-size:21px;line-height:1.5;">{{ post.excerpt }}</p>
     {% endif %}
 
-    <!-- author row -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-border pt-5 sm:pt-6">
+    <!-- Meta row -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-border pt-5">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-bg-2 border border-border-2 shrink-0 flex items-center justify-center font-mono text-xs text-muted-3 uppercase">
+        <div class="w-[42px] h-[42px] rounded-full bg-bg-1 border border-border shrink-0 flex items-center justify-center font-mono text-xs text-muted-3 uppercase">
           {{ post.author.username|first }}
         </div>
         <div>
-          <div class="font-semibold text-sm text-ink">{{ post.author.get_full_name|default:post.author.username }}</div>
-          <div class="font-mono text-xs text-muted-3 mt-0.5">
+          <div class="font-semibold text-[15px] text-ink leading-snug">{{ post.author.get_full_name|default:post.author.username }}</div>
+          <div class="font-mono text-[11px] text-muted-3 mt-0.5 uppercase tracking-[0.06em]">
             {% if post.published_at %}{{ post.published_at|date:"d/m/Y" }} · {% endif %}{{ post.reading_time }} phút đọc · {{ post.views }} lượt xem
           </div>
         </div>
       </div>
-      <div class="flex gap-2 font-mono text-xs uppercase tracking-wider text-muted-1 self-start sm:self-auto">
+      <div class="flex gap-2 font-mono text-[11px] uppercase tracking-[0.08em] self-start sm:self-auto">
+        <button id="btn-copy"
+                class="border border-border-2 text-muted-1 px-3.5 py-2 rounded-sm hover:border-ink hover:text-ink transition-colors">
+          Sao chép
+        </button>
         <a href="https://twitter.com/intent/tweet?text={{ post.title|urlencode }}&url={{ request.build_absolute_uri|urlencode }}"
            target="_blank" rel="noopener"
-           class="border border-border-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-sm hover:border-ink hover:text-ink transition-colors">Chia sẻ</a>
-        <a href="{% url 'posts:rss' %}" class="border border-border-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-sm hover:border-ink hover:text-ink transition-colors">RSS</a>
+           class="border border-border-2 text-muted-1 px-3.5 py-2 rounded-sm hover:border-ink hover:text-ink transition-colors">
+          Chia sẻ
+        </a>
       </div>
     </div>
   </div>
 
-  <!-- HERO IMAGE -->
+  <!-- ── HERO IMAGE ── -->
   {% if post.thumbnail %}
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 mb-2">
+  <div class="max-w-[1000px] mx-auto px-4 sm:px-6 mb-10 sm:mb-12">
     <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}"
-         class="w-full object-cover rounded-sm border border-border"
-         style="aspect-ratio:21/9;">
+         class="w-full object-cover border border-border"
+         style="aspect-ratio:21/9;border-radius:3px;">
+    <p class="font-mono text-[11px] text-muted-3 mt-2.5 uppercase tracking-[0.06em]">Ảnh minh hoạ — {{ post.title }}</p>
   </div>
   {% endif %}
 
-  <!-- BODY + TOC -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-9">
-    <div class="lg:grid lg:gap-12" style="grid-template-columns:1fr 220px;">
+  <!-- ── BODY + TOC SIDEBAR ── -->
+  <div class="article-grid-wrap pb-4">
+    <div class="lg:grid lg:gap-12" style="grid-template-columns:minmax(0,720px) 1fr;">
 
-      <!-- Article body -->
-      <div>
-        <div id="article-body" class="prose max-w-3xl">{{ post.content|safe }}</div>
-      </div>
+      <div id="article-body" class="prose">{{ post.content|safe }}</div>
 
-      <!-- TOC sidebar -->
       <aside class="hidden lg:block">
-        <div class="sticky top-20">
-          <div class="font-mono text-xs uppercase tracking-widest text-muted-3 mb-3">Mục lục</div>
-          <nav id="toc" class="font-mono text-xs text-muted-2 space-y-0.5"></nav>
+        <div class="sticky top-24 pt-1">
+          <div class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-3 mb-3">Mục lục</div>
+          <nav id="toc" class="space-y-0.5"></nav>
         </div>
       </aside>
 
     </div>
   </div>
 
-  <!-- TAGS -->
+  <!-- ── TAGS ── -->
   {% with tags=post.tags.all %}
   {% if tags %}
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-6 sm:pb-9 flex flex-wrap gap-2">
+  <div class="max-w-[720px] mx-auto px-4 sm:px-6 pt-6 pb-8 flex flex-wrap gap-2">
     {% for tag in tags %}
     <a href="{% url 'posts:tag' tag.slug %}"
-       class="font-mono text-xs text-muted-1 bg-bg-3 border border-border-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-sm hover:border-ink hover:text-ink transition-colors">#{{ tag.name }}</a>
+       class="font-mono text-[11px] uppercase tracking-[0.06em] text-muted-1 bg-bg-3 border border-border-2 px-3 py-1.5 rounded-sm hover:border-ink hover:text-ink transition-colors">
+      #{{ tag.name }}
+    </a>
     {% endfor %}
   </div>
   {% endif %}
   {% endwith %}
 
-  <!-- AUTHOR BIO -->
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-7 border-t border-b border-border flex gap-4 sm:gap-5 items-start mb-10 sm:mb-12">
-    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-bg-2 border border-border-2 shrink-0 flex items-center justify-center font-mono text-sm text-muted-3 uppercase">
+  <!-- ── AUTHOR BIO ── -->
+  <div class="max-w-[720px] mx-auto px-4 sm:px-6 py-7 border-t border-b border-border flex gap-4 sm:gap-[18px] items-start mb-10 sm:mb-12">
+    <div class="w-14 h-14 rounded-full bg-bg-1 border border-border shrink-0 flex items-center justify-center font-mono text-sm text-muted-3 uppercase">
       {{ post.author.username|first }}
     </div>
     <div>
-      <div class="font-mono text-xs uppercase tracking-wider text-muted-3 mb-1.5">Tác giả</div>
-      <div class="font-heading font-semibold text-lg sm:text-xl mb-1.5 text-ink">{{ post.author.get_full_name|default:post.author.username }}</div>
-      {% if post.author.email %}
-      <p class="text-muted-2 leading-relaxed text-sm">{{ post.author.email }}</p>
-      {% endif %}
+      <div class="font-mono text-[11px] uppercase tracking-[0.1em] text-muted-3 mb-1.5">Tác giả</div>
+      <div class="font-heading font-semibold text-ink mb-2" style="font-size:19px;line-height:1.2;">{{ post.author.get_full_name|default:post.author.username }}</div>
+      <p class="leading-relaxed text-muted-2" style="font-size:14.5px;">Lập trình viên, yêu thích chia sẻ kiến thức về công nghệ và phát triển phần mềm.</p>
     </div>
   </div>
 
-  <!-- PREV / NEXT -->
+  <!-- ── PREV / NEXT ── -->
   {% if prev_post or next_post %}
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 mb-10 sm:mb-12">
+  <div class="max-w-[720px] mx-auto px-4 sm:px-6 mb-10 sm:mb-12">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {% if prev_post %}
-      <a href="{% url 'posts:detail' prev_post.slug %}" class="group border border-border-2 rounded-sm p-4 hover:border-ink transition-colors">
-        <div class="font-mono text-xs text-muted-3 uppercase tracking-wider mb-1.5">← Bài trước</div>
+      <a href="{% url 'posts:detail' prev_post.slug %}"
+         class="group border border-border-2 rounded-sm p-4 hover:border-ink transition-colors">
+        <div class="font-mono text-[10px] text-muted-3 uppercase tracking-[0.1em] mb-1.5">← Bài trước</div>
         <div class="font-heading font-semibold text-sm text-ink leading-snug group-hover:text-muted-1 transition-colors">{{ prev_post.title }}</div>
       </a>
       {% else %}<div></div>{% endif %}
       {% if next_post %}
-      <a href="{% url 'posts:detail' next_post.slug %}" class="group border border-border-2 rounded-sm p-4 hover:border-ink transition-colors sm:text-right">
-        <div class="font-mono text-xs text-muted-3 uppercase tracking-wider mb-1.5">Bài tiếp →</div>
+      <a href="{% url 'posts:detail' next_post.slug %}"
+         class="group border border-border-2 rounded-sm p-4 hover:border-ink transition-colors sm:text-right">
+        <div class="font-mono text-[10px] text-muted-3 uppercase tracking-[0.1em] mb-1.5">Bài tiếp →</div>
         <div class="font-heading font-semibold text-sm text-ink leading-snug group-hover:text-muted-1 transition-colors">{{ next_post.title }}</div>
       </a>
       {% endif %}
@@ -157,11 +181,11 @@
   </div>
   {% endif %}
 
-  <!-- COMMENTS -->
-  <div id="comments" class="max-w-3xl mx-auto px-4 sm:px-6 mb-10 sm:mb-14">
+  <!-- ── COMMENTS ── -->
+  <div id="comments" class="max-w-[720px] mx-auto px-4 sm:px-6 mb-10 sm:mb-14">
     <div class="flex items-center gap-3 mb-7">
-      <div class="w-2 h-2 bg-ink shrink-0"></div>
-      <span class="font-mono text-xs uppercase tracking-widest text-muted-3">
+      <div class="w-1.5 h-1.5 bg-ink shrink-0 rounded-sm"></div>
+      <span class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-3">
         Bình luận{% if comment_count %} ({{ comment_count }}){% endif %}
       </span>
       <div class="flex-1 h-px bg-border"></div>
@@ -170,12 +194,12 @@
     {% for comment in comments %}
     <div class="mb-6 pb-6 border-b border-border last:border-0">
       <div class="flex items-center gap-3 mb-3">
-        <div class="w-8 h-8 rounded-full bg-bg-2 border border-border-2 shrink-0 flex items-center justify-center font-mono text-xs text-muted-3 uppercase">
+        <div class="w-8 h-8 rounded-full bg-bg-1 border border-border shrink-0 flex items-center justify-center font-mono text-xs text-muted-3 uppercase">
           {{ comment.name|first }}
         </div>
         <div>
           <div class="font-semibold text-sm text-ink">{{ comment.name }}</div>
-          <div class="font-mono text-xs text-muted-4">{{ comment.created_at|date:"d/m/Y" }}</div>
+          <div class="font-mono text-[10px] text-muted-3 uppercase tracking-[0.06em] mt-0.5">{{ comment.created_at|date:"d/m/Y" }}</div>
         </div>
       </div>
       <p class="text-muted-1 leading-relaxed text-sm pl-11">{{ comment.content }}</p>
@@ -185,30 +209,30 @@
     {% endfor %}
 
     <div class="mt-8 bg-bg-2 border border-border rounded-sm p-5 sm:p-6">
-      <div class="font-mono text-xs uppercase tracking-wider text-muted-3 mb-5">Để lại bình luận</div>
+      <div class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-3 mb-5">Để lại bình luận</div>
       <form method="post" action="{% url 'posts:comment' post.slug %}">
         {% csrf_token %}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
-            <label class="font-mono text-xs text-muted-3 uppercase tracking-wider block mb-1.5">Tên *</label>
+            <label class="font-mono text-[10px] text-muted-3 uppercase tracking-[0.1em] block mb-1.5">Tên *</label>
             <input type="text" name="name" required maxlength="100"
                    class="w-full bg-surface border border-border-2 rounded-sm px-3 py-2.5 text-sm text-ink font-body focus:outline-none focus:border-ink transition-colors">
           </div>
           <div>
-            <label class="font-mono text-xs text-muted-3 uppercase tracking-wider block mb-1.5">Email *</label>
+            <label class="font-mono text-[10px] text-muted-3 uppercase tracking-[0.1em] block mb-1.5">Email *</label>
             <input type="email" name="email" required
                    class="w-full bg-surface border border-border-2 rounded-sm px-3 py-2.5 text-sm text-ink font-body focus:outline-none focus:border-ink transition-colors">
           </div>
         </div>
         <div class="mb-4">
-          <label class="font-mono text-xs text-muted-3 uppercase tracking-wider block mb-1.5">Bình luận *</label>
+          <label class="font-mono text-[10px] text-muted-3 uppercase tracking-[0.1em] block mb-1.5">Bình luận *</label>
           <textarea name="content" required maxlength="1000" rows="4"
                     class="w-full bg-surface border border-border-2 rounded-sm px-3 py-2.5 text-sm text-ink font-body focus:outline-none focus:border-ink transition-colors resize-none"></textarea>
         </div>
-        <div class="flex items-center justify-between">
-          <p class="font-mono text-xs text-muted-3">Bình luận sẽ được duyệt trước khi hiển thị.</p>
+        <div class="flex items-center justify-between gap-4">
+          <p class="font-mono text-[10px] text-muted-3 uppercase tracking-[0.06em]">Bình luận sẽ được duyệt trước khi hiển thị.</p>
           <button type="submit"
-                  class="bg-ink text-surface font-mono text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-sm hover:opacity-80 transition-opacity">
+                  class="shrink-0 bg-ink text-surface font-mono text-[11px] font-bold uppercase tracking-[0.08em] px-5 py-2.5 rounded-sm hover:opacity-80 transition-opacity">
             Gửi →
           </button>
         </div>
@@ -216,78 +240,118 @@
     </div>
   </div>
 
-  <!-- RELATED POSTS -->
+  <!-- ── RELATED POSTS ── -->
   {% if related_posts %}
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pb-12 sm:pb-16">
-    <div class="flex items-center gap-3 mb-6 sm:mb-7">
-      <div class="w-2 h-2 bg-ink shrink-0"></div>
-      <span class="font-mono text-xs uppercase tracking-widest text-muted-3">Đọc tiếp</span>
-      <div class="flex-1 h-px bg-border"></div>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-      {% for rp in related_posts %}
-      <article>
-        <a href="{% url 'posts:detail' rp.slug %}" class="block mb-3 sm:mb-3.5">
-          {% if rp.thumbnail %}
-            <img src="{{ rp.thumbnail.url }}" alt="{{ rp.title }}"
-                 class="w-full object-cover rounded-sm border border-border" style="aspect-ratio:16/10;">
-          {% else %}
-            <div class="img-placeholder" style="aspect-ratio:16/10;"></div>
+  <div class="border-t border-border pt-10 sm:pt-12 pb-12 sm:pb-16">
+    <div class="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center gap-3 mb-7 sm:mb-8">
+        <div class="w-1.5 h-1.5 bg-ink shrink-0 rounded-sm"></div>
+        <span class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-3">Đọc tiếp</span>
+        <div class="flex-1 h-px bg-border"></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        {% for rp in related_posts %}
+        <article class="group">
+          <a href="{% url 'posts:detail' rp.slug %}" class="block mb-3 overflow-hidden" style="border-radius:3px;">
+            {% if rp.thumbnail %}
+              <img src="{{ rp.thumbnail.url }}" alt="{{ rp.title }}"
+                   class="w-full object-cover border border-border transition-transform duration-300 group-hover:scale-[1.03]"
+                   style="aspect-ratio:16/10;border-radius:3px;">
+            {% else %}
+              <div class="img-placeholder border border-border transition-transform duration-300 group-hover:scale-[1.03]"
+                   style="aspect-ratio:16/10;border-radius:3px;"></div>
+            {% endif %}
+          </a>
+          {% if rp.category %}
+          <span class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-3">{{ rp.category.name }}</span>
           {% endif %}
-        </a>
-        {% if rp.category %}
-        <span class="font-mono text-xs uppercase tracking-wider text-muted-3">{{ rp.category.name }}</span>
-        {% endif %}
-        <h3 class="font-heading font-semibold mt-2 text-ink leading-snug text-base sm:text-lg" style="letter-spacing:-0.01em;">
-          <a href="{% url 'posts:detail' rp.slug %}" class="hover:text-muted-1 transition-colors">{{ rp.title }}</a>
-        </h3>
-      </article>
-      {% endfor %}
+          <h3 class="font-heading font-semibold mt-2 text-ink" style="font-size:19px;line-height:1.2;letter-spacing:-0.01em;">
+            <a href="{% url 'posts:detail' rp.slug %}" class="hover:text-muted-1 transition-colors">{{ rp.title }}</a>
+          </h3>
+        </article>
+        {% endfor %}
+      </div>
     </div>
   </div>
   {% endif %}
-
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-8">
-    <a href="/" class="font-mono text-xs text-muted-3 hover:text-ink transition-colors uppercase tracking-wider">← Tất cả bài viết</a>
-  </div>
 
 </main>
 
 <script>
   // Reading progress
-  const bar = document.getElementById('reading-progress');
-  document.addEventListener('scroll', () => {
-    const el = document.documentElement;
-    const pct = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
-    if (bar) bar.style.width = Math.min(pct, 100) + '%';
-  }, { passive: true });
+  (function () {
+    const bar = document.getElementById('reading-progress');
+    if (!bar) return;
+    document.addEventListener('scroll', () => {
+      const el = document.documentElement;
+      const pct = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
+      bar.style.width = Math.min(pct, 100) + '%';
+    }, { passive: true });
+  })();
 
-  // Auto TOC
+  // Copy link to clipboard
+  (function () {
+    const btn = document.getElementById('btn-copy');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'Đã sao chép!';
+        setTimeout(() => btn.textContent = orig, 2000);
+      });
+    });
+  })();
+
+  // Auto TOC from article headings
   (function () {
     const toc = document.getElementById('toc');
     const body = document.getElementById('article-body');
     if (!toc || !body) return;
     const headings = body.querySelectorAll('h2, h3');
-    if (headings.length < 2) { toc.closest('aside').remove(); return; }
+    if (headings.length < 2) { toc.closest('aside')?.remove(); return; }
     headings.forEach((h, i) => {
       if (!h.id) h.id = 'heading-' + i;
       const a = document.createElement('a');
       a.href = '#' + h.id;
       a.textContent = h.textContent;
-      a.className = (h.tagName === 'H3' ? 'indent ' : '') + 'text-muted-2 transition-colors hover:text-ink';
+      a.style.cssText = [
+        'display:block',
+        'padding:3px 0 3px ' + (h.tagName === 'H3' ? '18px' : '10px'),
+        'border-left:2px solid transparent',
+        'font-family:"JetBrains Mono",monospace',
+        'font-size:11px',
+        'color:#8A897E',
+        'text-decoration:none',
+        'transition:all .15s',
+        'line-height:1.4',
+      ].join(';');
       toc.appendChild(a);
     });
     const links = toc.querySelectorAll('a');
     const obs = new IntersectionObserver(entries => {
       entries.forEach(e => {
         if (e.isIntersecting) {
-          links.forEach(l => l.classList.remove('active'));
+          links.forEach(l => {
+            l.style.borderLeftColor = 'transparent';
+            l.style.color = '#8A897E';
+          });
           const active = toc.querySelector('a[href="#' + e.target.id + '"]');
-          if (active) active.classList.add('active');
+          if (active) {
+            active.style.borderLeftColor = 'oklch(0.86 0.2 125)';
+            active.style.color = '#15140F';
+          }
         }
       });
     }, { rootMargin: '0px 0px -70% 0px' });
     headings.forEach(h => obs.observe(h));
   })();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#article-body pre code').forEach(block => {
+      hljs.highlightElement(block);
+    });
+  });
 </script>
 {% endblock %}

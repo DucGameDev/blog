@@ -45,6 +45,7 @@ class Post(models.Model):
     views = models.PositiveIntegerField(default=0)
     meta_title = models.CharField(max_length=70, blank=True)
     meta_description = models.CharField(max_length=160, blank=True)
+    note = models.TextField(blank=True, verbose_name='Ghi chú (nội bộ)')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='posts'
