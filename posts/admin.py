@@ -59,11 +59,6 @@ class PostResource(resources.ModelResource):
         ),
     )
     tags = fields.Field(column_name='tags', attribute=None)
-    published_at = fields.Field(
-        column_name='published_at',
-        attribute='published_at',
-        widget=widgets.DateTimeWidget(formats=['%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M']),
-    )
 
     class Meta:
         model = Post
