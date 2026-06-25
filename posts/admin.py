@@ -32,11 +32,23 @@ class PostAdminForm(forms.ModelForm):
 
 # ── Import/Export resource ────────────────────────────────────────────────────
 
+class SafeCategoryWidget(widgets.ForeignKeyWidget):
+    def clean(self, value, row=None, **kwargs):
+        if not value:
+            return None
+        from django.utils.text import slugify
+        obj, _ = self.model.objects.get_or_create(
+            name=value,
+            defaults={'slug': slugify(value)},
+        )
+        return obj
+
+
 class PostResource(resources.ModelResource):
     category = fields.Field(
         column_name='category',
         attribute='category',
-        widget=widgets.ForeignKeyWidget(Category, field='name'),
+        widget=SafeCategoryWidget(Category, field='name'),
     )
     author = fields.Field(
         column_name='author',
