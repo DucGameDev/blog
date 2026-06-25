@@ -78,7 +78,7 @@ class PostResource(resources.ModelResource):
     def after_save_instance(self, instance, row, **kwargs):
         tag_str = row.get('tags', '')
         if tag_str:
-            instance.tags.set(*[t.strip() for t in tag_str.split(',') if t.strip()])
+            instance.tags.set([t.strip() for t in tag_str.split(',') if t.strip()])
 
     def before_import_row(self, row, row_number=None, **kwargs):
         import re
