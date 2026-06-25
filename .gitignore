@@ -1,12 +1,33 @@
 venv/
 tailwindcss.exe
 static/css/style.css
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+
+# Env & secrets
 .env
+.env.*
+*.env
+secrets.json
+
+# Database
 db.sqlite3
+
+# Django
 staticfiles/
 media/
+
+# Logs
 *.log
+
+# OS
 .DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
