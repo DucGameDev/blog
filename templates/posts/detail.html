@@ -4,6 +4,18 @@
 {% block title %}{{ post.meta_title|default:post.title }} — ducdev{% endblock %}
 {% block meta_description %}{{ post.meta_description|default:post.excerpt }}{% endblock %}
 
+{% block og_meta %}
+<meta property="og:title" content="{{ post.meta_title|default:post.title }}">
+<meta property="og:description" content="{{ post.meta_description|default:post.excerpt }}">
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% if post.thumbnail %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.thumbnail.url }}">{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ post.title }}">
+<meta name="twitter:description" content="{{ post.excerpt }}">
+{% if post.thumbnail %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.thumbnail.url }}">{% endif %}
+{% endblock %}
+
 {% block extra_head %}
 <style>
   #reading-progress{position:fixed;top:0;left:0;height:3px;width:0%;background:oklch(0.86 0.2 125);z-index:9999;transition:width .1s linear;}
@@ -26,10 +38,8 @@
       <span>Bài viết</span>
     </div>
 
-    <!-- title -->
     <h1 class="font-heading font-bold text-ink mb-4 sm:mb-6 text-3xl sm:text-4xl lg:text-5xl" style="line-height:1.06;letter-spacing:-0.025em;">{{ post.title }}</h1>
 
-    <!-- deck -->
     {% if post.excerpt %}
     <p class="text-muted-1 mb-6 sm:mb-9 leading-relaxed text-base sm:text-lg lg:text-xl">{{ post.excerpt }}</p>
     {% endif %}
@@ -48,8 +58,10 @@
         </div>
       </div>
       <div class="flex gap-2 font-mono text-xs uppercase tracking-wider text-muted-1 self-start sm:self-auto">
-        <button class="border border-border-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-sm hover:border-ink hover:text-ink transition-colors">Lưu</button>
-        <button class="border border-border-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-sm hover:border-ink hover:text-ink transition-colors">Chia sẻ</button>
+        <a href="https://twitter.com/intent/tweet?text={{ post.title|urlencode }}&url={{ request.build_absolute_uri|urlencode }}"
+           target="_blank" rel="noopener"
+           class="border border-border-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-sm hover:border-ink hover:text-ink transition-colors">Chia sẻ</a>
+        <a href="{% url 'posts:rss' %}" class="border border-border-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-sm hover:border-ink hover:text-ink transition-colors">RSS</a>
       </div>
     </div>
   </div>
@@ -73,7 +85,8 @@
   {% if tags %}
   <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-6 sm:pb-9 flex flex-wrap gap-2">
     {% for tag in tags %}
-    <span class="font-mono text-xs text-muted-1 bg-bg-3 border border-border-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-sm">#{{ tag.name }}</span>
+    <a href="{% url 'posts:tag' tag.slug %}"
+       class="font-mono text-xs text-muted-1 bg-bg-3 border border-border-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-sm hover:border-ink hover:text-ink transition-colors">#{{ tag.name }}</a>
     {% endfor %}
   </div>
   {% endif %}
@@ -90,6 +103,68 @@
       {% if post.author.email %}
       <p class="text-muted-2 leading-relaxed text-sm">{{ post.author.email }}</p>
       {% endif %}
+    </div>
+  </div>
+
+  <!-- COMMENTS -->
+  <div id="comments" class="max-w-3xl mx-auto px-4 sm:px-6 mb-10 sm:mb-14">
+
+    <div class="flex items-center gap-3 mb-7">
+      <div class="w-2 h-2 bg-ink shrink-0"></div>
+      <span class="font-mono text-xs uppercase tracking-widest text-muted-3">
+        Bình luận{% if comment_count %} ({{ comment_count }}){% endif %}
+      </span>
+      <div class="flex-1 h-px bg-border"></div>
+    </div>
+
+    <!-- approved comments -->
+    {% for comment in comments %}
+    <div class="mb-6 pb-6 border-b border-border last:border-0">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-8 h-8 rounded-full bg-bg-2 border border-border-2 shrink-0 flex items-center justify-center font-mono text-xs text-muted-3 uppercase">
+          {{ comment.name|first }}
+        </div>
+        <div>
+          <div class="font-semibold text-sm text-ink">{{ comment.name }}</div>
+          <div class="font-mono text-xs text-muted-4">{{ comment.created_at|date:"d/m/Y" }}</div>
+        </div>
+      </div>
+      <p class="text-muted-1 leading-relaxed text-sm pl-11">{{ comment.content }}</p>
+    </div>
+    {% empty %}
+    <p class="text-muted-3 font-mono text-sm mb-8">Chưa có bình luận. Hãy là người đầu tiên!</p>
+    {% endfor %}
+
+    <!-- comment form -->
+    <div class="mt-8 bg-bg-2 border border-border rounded-sm p-5 sm:p-6">
+      <div class="font-mono text-xs uppercase tracking-wider text-muted-3 mb-5">Để lại bình luận</div>
+      <form method="post" action="{% url 'posts:comment' post.slug %}">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="font-mono text-xs text-muted-3 uppercase tracking-wider block mb-1.5">Tên *</label>
+            <input type="text" name="name" required maxlength="100"
+                   class="w-full bg-surface border border-border-2 rounded-sm px-3 py-2.5 text-sm text-ink font-body focus:outline-none focus:border-ink transition-colors">
+          </div>
+          <div>
+            <label class="font-mono text-xs text-muted-3 uppercase tracking-wider block mb-1.5">Email *</label>
+            <input type="email" name="email" required
+                   class="w-full bg-surface border border-border-2 rounded-sm px-3 py-2.5 text-sm text-ink font-body focus:outline-none focus:border-ink transition-colors">
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="font-mono text-xs text-muted-3 uppercase tracking-wider block mb-1.5">Bình luận *</label>
+          <textarea name="content" required maxlength="1000" rows="4"
+                    class="w-full bg-surface border border-border-2 rounded-sm px-3 py-2.5 text-sm text-ink font-body focus:outline-none focus:border-ink transition-colors resize-none"></textarea>
+        </div>
+        <div class="flex items-center justify-between">
+          <p class="font-mono text-xs text-muted-3">Bình luận sẽ được duyệt trước khi hiển thị.</p>
+          <button type="submit"
+                  class="bg-ink text-surface font-mono text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-sm hover:opacity-80 transition-opacity">
+            Gửi →
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -124,7 +199,6 @@
   </div>
   {% endif %}
 
-  <!-- back -->
   <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-8">
     <a href="/" class="font-mono text-xs text-muted-3 hover:text-ink transition-colors uppercase tracking-wider">← Tất cả bài viết</a>
   </div>

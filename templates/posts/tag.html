@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}#{{ tag_slug }} — ducdev{% endblock %}
+
+{% block content %}
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+
+  <div class="py-8 sm:py-12 border-b border-border mb-8 sm:mb-10">
+    <a href="/" class="font-mono text-xs text-muted-3 hover:text-ink transition-colors uppercase tracking-wider mb-4 sm:mb-5 inline-block">← Tất cả</a>
+    <div class="flex items-center gap-2 mb-2.5">
+      <div class="w-2 h-2 bg-accent shrink-0"></div>
+      <span class="font-mono text-xs uppercase tracking-widest text-muted-3">Tag</span>
+    </div>
+    <h1 class="font-heading font-bold text-3xl sm:text-4xl text-ink" style="letter-spacing:-0.02em;">#{{ tag_slug }}</h1>
+  </div>
+
+  {% if posts %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 lg:gap-x-8 gap-y-8 sm:gap-y-10 pb-12 sm:pb-16">
+    {% for post in posts %}
+    <article>
+      <a href="{% url 'posts:detail' post.slug %}" class="block mb-3 sm:mb-4">
+        {% if post.thumbnail %}
+          <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}"
+               class="w-full object-cover rounded-sm border border-border" style="aspect-ratio:16/10;">
+        {% else %}
+          <div class="img-placeholder flex items-center justify-center" style="aspect-ratio:16/10;">
+            <span class="font-mono text-xs text-muted-4">[ ảnh ]</span>
+          </div>
+        {% endif %}
+      </a>
+      <h3 class="font-heading font-semibold text-lg sm:text-xl mt-2 mb-2 text-ink leading-snug" style="letter-spacing:-0.01em;">
+        <a href="{% url 'posts:detail' post.slug %}" class="hover:text-muted-1 transition-colors">{{ post.title }}</a>
+      </h3>
+      {% if post.excerpt %}
+      <p class="text-muted-2 mb-3 leading-relaxed text-sm">{{ post.excerpt|truncatewords:20 }}</p>
+      {% endif %}
+      <span class="font-mono text-xs text-muted-3">
+        {{ post.author.get_full_name|default:post.author.username }}
+        {% if post.published_at %} · {{ post.published_at|date:"d/m/Y" }}{% endif %}
+      </span>
+    </article>
+    {% endfor %}
+  </div>
+
+  {% if is_paginated %}
+  <div class="mt-4 mb-12 sm:mb-16 flex items-center justify-between font-mono text-xs text-muted-3">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}" class="border border-border-2 px-3 py-1.5 rounded-sm hover:border-ink hover:text-ink transition-colors">← trước</a>
+    {% else %}<span></span>{% endif %}
+    <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}" class="border border-border-2 px-3 py-1.5 rounded-sm hover:border-ink hover:text-ink transition-colors">tiếp →</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <p class="text-muted-3 font-mono text-sm pb-16">Chưa có bài viết với tag này.</p>
+  {% endif %}
+
+</main>
+{% endblock %}

@@ -66,7 +66,35 @@ class Post(models.Model):
         self.reading_time = self._calculate_reading_time()
         super().save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('posts:detail', kwargs={'slug': self.slug})
+
     def _calculate_reading_time(self):
         text = re.sub(r'<[^>]+>', '', self.content or '')
         word_count = len(text.split())
         return max(1, math.ceil(word_count / 200))
+
+
+class Subscriber(models.Model):
+    email = models.EmailField(unique=True)
+    subscribed_at = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.email
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    content = models.TextField(max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True)
+    approved = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f'{self.name} — {self.post.title}'

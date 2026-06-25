@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}ducdev{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}Blog công nghệ bởi ducdev{% endblock %}">
+
+  <!-- OG / Twitter -->
+  {% block og_meta %}
+  <meta property="og:title" content="ducdev — blog công nghệ">
+  <meta property="og:description" content="Blog công nghệ bởi ducdev">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  <meta name="twitter:card" content="summary_large_image">
+  {% endblock %}
+
+  <link rel="alternate" type="application/rss+xml" title="ducdev RSS" href="{% url 'posts:rss' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -30,7 +41,12 @@
         {% endfor %}
       </nav>
 
-      <div class="flex items-center gap-3 sm:gap-5">
+      <div class="flex items-center gap-3 sm:gap-4">
+        <!-- search -->
+        <a href="{% url 'posts:search' %}" class="hidden sm:flex items-center font-mono text-xs text-muted-3 hover:text-ink transition-colors gap-1">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span class="hidden lg:inline">Tìm</span>
+        </a>
         <a href="/admin/" class="font-mono text-xs uppercase tracking-wider bg-ink text-surface px-3 sm:px-4 py-2 sm:py-2.5 rounded-sm hover:opacity-80 transition-opacity">Admin</a>
         <!-- mobile menu button -->
         <button id="nav-toggle" class="lg:hidden flex flex-col gap-1.5 p-1" aria-label="Menu">
@@ -49,6 +65,7 @@
         {% for cat in nav_categories %}
         <a href="{% url 'posts:category' cat.slug %}" class="font-mono text-xs uppercase tracking-widest text-muted-3 hover:text-ink transition-colors py-1">{{ cat.name }}</a>
         {% endfor %}
+        <a href="{% url 'posts:search' %}" class="font-mono text-xs uppercase tracking-widest text-muted-3 hover:text-ink transition-colors py-1">Tìm kiếm</a>
       </div>
     </div>
   </header>
@@ -64,9 +81,9 @@
         <span class="font-mono text-xs text-muted-4 ml-1.5">&copy; {% now "Y" %}</span>
       </div>
       <div class="flex gap-5 sm:gap-7 font-mono text-xs uppercase tracking-wider text-muted-3">
-        <span class="hover:text-ink cursor-pointer transition-colors">Giới thiệu</span>
-        <span class="hover:text-ink cursor-pointer transition-colors">RSS</span>
-        <span class="hover:text-ink cursor-pointer transition-colors">Liên hệ</span>
+        <a href="{% url 'posts:search' %}" class="hover:text-ink transition-colors">Tìm kiếm</a>
+        <a href="{% url 'posts:rss' %}" class="hover:text-ink transition-colors">RSS</a>
+        <a href="/sitemap.xml" class="hover:text-ink transition-colors">Sitemap</a>
       </div>
     </div>
   </footer>

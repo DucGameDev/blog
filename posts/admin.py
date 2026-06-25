@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, Category
+from .models import Post, Category, Subscriber, Comment
 
 
 @admin.register(Category)
@@ -24,3 +24,22 @@ class PostAdmin(admin.ModelAdmin):
         ('Publishing', {'fields': ('status', 'published_at')}),
         ('SEO', {'fields': ('meta_title', 'meta_description'), 'classes': ('collapse',)}),
     )
+
+
+@admin.register(Subscriber)
+class SubscriberAdmin(admin.ModelAdmin):
+    list_display = ('email', 'subscribed_at', 'active')
+    list_filter = ('active',)
+    search_fields = ('email',)
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'post', 'created_at', 'approved')
+    list_filter = ('approved', 'created_at')
+    search_fields = ('name', 'email', 'content')
+    actions = ['approve_comments']
+
+    def approve_comments(self, request, queryset):
+        queryset.update(approved=True)
+    approve_comments.short_description = 'Duyệt bình luận đã chọn'
