@@ -1,6 +1,4 @@
 from django.views.generic import ListView, DetailView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from .models import Post, Category
 
@@ -41,37 +39,6 @@ class PostDetailView(DetailView):
             status=Post.STATUS_PUBLISHED,
             category=self.object.category,
         ).exclude(pk=self.object.pk).select_related('author', 'category')[:3]
-        return ctx
-
-
-class DashboardView(LoginRequiredMixin, ListView):
-    template_name = 'dashboard/index.html'
-    context_object_name = 'posts'
-    paginate_by = 20
-    login_url = '/admin/login/'
-
-    def get_queryset(self):
-        qs = Post.objects.select_related('author', 'category').order_by('-created_at')
-        status = self.request.GET.get('status', '')
-        q = self.request.GET.get('q', '')
-        if status in [Post.STATUS_PUBLISHED, Post.STATUS_DRAFT]:
-            qs = qs.filter(status=status)
-        if q:
-            qs = qs.filter(title__icontains=q)
-        return qs
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['stats'] = {
-            'published': Post.objects.filter(status=Post.STATUS_PUBLISHED).count(),
-            'draft': Post.objects.filter(status=Post.STATUS_DRAFT).count(),
-            'total': Post.objects.count(),
-            'categories': Category.objects.count(),
-            'authors': User.objects.filter(posts__isnull=False).distinct().count(),
-        }
-        ctx['current_status'] = self.request.GET.get('status', '')
-        ctx['search_q'] = self.request.GET.get('q', '')
-        ctx['active_nav'] = 'posts'
         return ctx
 
 
