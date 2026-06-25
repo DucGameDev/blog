@@ -38,7 +38,7 @@ class Post(models.Model):
     slug = models.SlugField(unique=True, blank=True, max_length=255)
     excerpt = models.TextField(blank=True, max_length=500)
     content = RichTextUploadingField()
-    thumbnail = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
+    thumbnail = models.URLField(blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_DRAFT)
     published_at = models.DateTimeField(null=True, blank=True)
     reading_time = models.PositiveIntegerField(default=1)

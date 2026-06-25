@@ -20,7 +20,7 @@
     <article>
       <a href="{% url 'posts:detail' post.slug %}" class="block mb-3 sm:mb-4">
         {% if post.thumbnail %}
-          <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}"
+          <img src="{{ post.thumbnail }}" alt="{{ post.title }}"
                class="w-full object-cover rounded-sm border border-border" style="aspect-ratio:16/10;">
         {% else %}
           <div class="img-placeholder flex items-center justify-center" style="aspect-ratio:16/10;">

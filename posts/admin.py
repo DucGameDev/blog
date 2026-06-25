@@ -63,10 +63,10 @@ class PostResource(resources.ModelResource):
     class Meta:
         model = Post
         import_id_fields = ('slug',)
-        exclude = ('id', 'thumbnail', 'created_at', 'updated_at')
+        exclude = ('id', 'created_at', 'updated_at')
         export_order = (
             'slug', 'title', 'status', 'published_at',
-            'excerpt', 'content',
+            'excerpt', 'content', 'thumbnail',
             'author', 'category', 'tags',
             'reading_time', 'views',
             'meta_title', 'meta_description', 'note',
@@ -108,7 +108,7 @@ class PostAdmin(ExportActionMixin, ImportExportModelAdmin):
             from django.utils.html import format_html
             return format_html(
                 '<img src="{}" style="width:72px;height:45px;object-fit:cover;border-radius:3px;">',
-                obj.thumbnail.url
+                obj.thumbnail
             )
         return '—'
 
@@ -118,7 +118,7 @@ class PostAdmin(ExportActionMixin, ImportExportModelAdmin):
             from django.utils.html import format_html
             return format_html(
                 '<img src="{}" style="max-width:400px;width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:4px;">',
-                obj.thumbnail.url
+                obj.thumbnail
             )
         return '(chưa có ảnh)'
     list_filter = ('status', 'category', 'author')

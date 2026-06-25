@@ -9,11 +9,11 @@
 <meta property="og:description" content="{{ post.meta_description|default:post.excerpt }}">
 <meta property="og:type" content="article">
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
-{% if post.thumbnail %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.thumbnail.url }}">{% endif %}
+{% if post.thumbnail %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.thumbnail }}">{% endif %}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ post.title }}">
 <meta name="twitter:description" content="{{ post.excerpt }}">
-{% if post.thumbnail %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.thumbnail.url }}">{% endif %}
+{% if post.thumbnail %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.thumbnail }}">{% endif %}
 {% endblock %}
 
 {% block extra_head %}
@@ -28,7 +28,7 @@
   "author": {"@type": "Person", "name": "{{ post.author.get_full_name|default:post.author.username|escapejs }}"},
   "publisher": {"@type": "Organization", "name": "ducdev"},
   "url": "{{ request.build_absolute_uri }}"{% if post.thumbnail %},
-  "image": "{{ request.scheme }}://{{ request.get_host }}{{ post.thumbnail.url }}"{% endif %}
+  "image": "{{ request.scheme }}://{{ request.get_host }}{{ post.thumbnail }}"{% endif %}
 }
 </script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/atom-one-dark.min.css">
@@ -110,7 +110,7 @@
   <!-- ── HERO IMAGE ── -->
   {% if post.thumbnail %}
   <div class="max-w-[1000px] mx-auto px-4 sm:px-6 mb-10 sm:mb-12">
-    <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}"
+    <img src="{{ post.thumbnail }}" alt="{{ post.title }}"
          class="w-full object-cover border border-border"
          style="aspect-ratio:21/9;border-radius:3px;">
   </div>
@@ -253,7 +253,7 @@
         <article class="group">
           <a href="{% url 'posts:detail' rp.slug %}" class="block mb-3 overflow-hidden" style="border-radius:3px;">
             {% if rp.thumbnail %}
-              <img src="{{ rp.thumbnail.url }}" alt="{{ rp.title }}"
+              <img src="{{ rp.thumbnail }}" alt="{{ rp.title }}"
                    class="w-full object-cover border border-border transition-transform duration-300 group-hover:scale-[1.03]"
                    style="aspect-ratio:16/10;border-radius:3px;">
             {% else %}
