@@ -32,16 +32,43 @@ pip install pillow whitenoise psycopg2-binary python-decouple gunicorn
 pip install dj-database-url mysqlclient
 
 ## Design system
-- Background: `#FBFBF8` (warm white)
-- Dark: `#15140F`
-- Accent: `oklch(0.86 0.2 125)` (lime green)
-- Border: `#E8E7E0`
-- Muted text: `#8A897E` / `#A8A89C`
-- Font heading: Space Grotesk (700)
-- Font body: Manrope (400/600)
-- Font mono: JetBrains Mono — dùng cho metadata, labels, tags, nav links
-- Bo góc: `rounded-sm` (2px) cho buttons/chips, `rounded-sm` (3px) cho ảnh/cards
-- Không dùng gradient
+
+### Màu nền
+- surface (nền trang): `#FBFBF8` — trắng ấm, không thuần trắng
+- Dark block (bản tin, code bg): `#15140F` — đen than
+- bg-1 / bg-2 / bg-3: `#F1F0E9` / `#F6F5EF` / `#EFEEE7` — nền phụ, placeholder
+
+### Màu chữ
+- ink: `#15140F` · ink-2: `#26251D` · ink-3: `#3A382E`
+- muted-1..4: `#54534A` / `#6B6A60` / `#8A897E` / `#A8A89C`
+
+### Màu viền
+- border: `#E8E7E0` · border-2: `#E4E3DB`
+
+### Màu nhấn (signature — dùng tiết chế)
+- **accent**: `oklch(0.86 0.2 125)` ≈ `#CFE82E` — lime điện, màu thương hiệu
+- accent-dim: `oklch(0.7 0.18 125)` — link trong prose
+- accent-bg: `oklch(0.93 0.06 125)` — nền chip rất nhạt
+
+**Nơi dùng accent (chỉ những chỗ này):**
+- Ô vuông nhỏ cạnh logo và section headers
+- Badge/pill category trên hero
+- Viền trái blockquote trong prose
+- Thanh reading progress (3px, fixed top)
+- Nút CTA newsletter
+- KHÔNG dùng cho text body, heading thường, hay nền toàn trang
+
+### Typography
+- **Space Grotesk** 700 — H1, H2, H3, logo, blockquote (font-heading)
+- **Manrope** 400/600 — paragraph, excerpt, mô tả (font-body)
+- **JetBrains Mono** — metadata (ngày, reading time), tags, nav labels, badges, pagination (font-mono)
+- Load từ Google Fonts trong base.html
+
+### Hình thức
+- Bo góc: `rounded-sm` (2px) cho tất cả — buttons, chips, ảnh, cards
+- Không dùng gradient, không dùng shadow (dùng border thay thế)
+- Ảnh thumbnail: `aspect-ratio:16/10`, `object-cover`
+- Ảnh hero article: `aspect-ratio:21/9`
 
 ## Responsive — áp dụng mọi template
 - **Mobile-first**, breakpoints: `sm` 640px · `md` 768px · `lg` 1024px
