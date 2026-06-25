@@ -1,0 +1,12 @@
+venv/
+tailwindcss.exe
+static/css/style.css
+__pycache__/
+*.pyc
+*.pyo
+.env
+db.sqlite3
+staticfiles/
+media/
+*.log
+.DS_Store
