@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Giới thiệu — ducdev{% endblock %}
+{% block meta_description %}Về tôi — ducdev, lập trình viên và người viết về công nghệ, sản phẩm, lập trình.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Giới thiệu — ducdev">
+<meta property="og:description" content="Về tôi — ducdev, lập trình viên và người viết về công nghệ, sản phẩm, lập trình.">
+<meta property="og:type" content="profile">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta name="twitter:card" content="summary">
+{% endblock %}
+
+{% block content %}
+<main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-12 lg:py-16">
+
+  <div class="flex items-center gap-2 mb-5">
+    <div class="w-2 h-2 bg-accent shrink-0"></div>
+    <span class="font-mono text-xs uppercase tracking-widest text-muted-3">Giới thiệu</span>
+  </div>
+
+  <h1 class="font-heading font-bold text-3xl sm:text-4xl lg:text-5xl text-ink mb-8 sm:mb-10" style="letter-spacing:-0.025em;line-height:1.06;">Xin chào, mình là ducdev.</h1>
+
+  <div class="prose">
+    <p>Mình là lập trình viên, viết về công nghệ, sản phẩm và những thứ mình học được trong quá trình làm việc.</p>
+
+    <p>Blog này là nơi mình ghi lại suy nghĩ — không có công thức, không có lịch đăng cố định, chỉ là những gì mình thấy đáng chia sẻ.</p>
+
+    <h2>Mình viết về gì?</h2>
+    <ul>
+      <li>Lập trình và kỹ thuật phần mềm</li>
+      <li>Công cụ và quy trình làm việc</li>
+      <li>Sản phẩm và thiết kế</li>
+      <li>Những bài học từ thực tế</li>
+    </ul>
+
+    <h2>Liên hệ</h2>
+    <p>Email: <a href="mailto:ducgamedev@gmail.com">ducgamedev@gmail.com</a></p>
+  </div>
+
+  <div class="mt-10 sm:mt-12 pt-8 border-t border-border">
+    <a href="/" class="font-mono text-xs text-muted-3 hover:text-ink transition-colors uppercase tracking-wider">← Xem tất cả bài viết</a>
+  </div>
+
+</main>
+{% endblock %}

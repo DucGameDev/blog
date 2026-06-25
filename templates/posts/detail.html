@@ -19,7 +19,24 @@
 {% block extra_head %}
 <style>
   #reading-progress{position:fixed;top:0;left:0;height:3px;width:0%;background:oklch(0.86 0.2 125);z-index:9999;transition:width .1s linear;}
+  #toc a{display:block;padding:4px 0;border-left:2px solid transparent;padding-left:10px;transition:all .15s;}
+  #toc a.active,#toc a:hover{border-left-color:oklch(0.86 0.2 125);color:#15140F;}
+  #toc a.indent{padding-left:20px;}
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "{{ post.title|escapejs }}",
+  "description": "{{ post.excerpt|escapejs }}",
+  "datePublished": "{{ post.published_at|date:'c' }}",
+  "dateModified": "{{ post.updated_at|date:'c' }}",
+  "author": {"@type": "Person", "name": "{{ post.author.get_full_name|default:post.author.username|escapejs }}"},
+  "publisher": {"@type": "Organization", "name": "ducdev"},
+  "url": "{{ request.build_absolute_uri }}"{% if post.thumbnail %},
+  "image": "{{ request.scheme }}://{{ request.get_host }}{{ post.thumbnail.url }}"{% endif %}
+}
+</script>
 {% endblock %}
 
 {% block content %}
@@ -29,7 +46,6 @@
 
   <!-- ARTICLE HEADER -->
   <div class="max-w-3xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 lg:pt-14 pb-6 sm:pb-9">
-    <!-- breadcrumb -->
     <div class="flex items-center gap-2 mb-5 sm:mb-7 font-mono text-xs uppercase tracking-wider text-muted-3">
       {% if post.category %}
         <a href="{% url 'posts:category' post.category.slug %}" class="text-ink font-medium hover:text-muted-1 transition-colors">{{ post.category.name }}</a>
@@ -53,7 +69,7 @@
         <div>
           <div class="font-semibold text-sm text-ink">{{ post.author.get_full_name|default:post.author.username }}</div>
           <div class="font-mono text-xs text-muted-3 mt-0.5">
-            {% if post.published_at %}{{ post.published_at|date:"d/m/Y" }} · {% endif %}{{ post.reading_time }} phút đọc
+            {% if post.published_at %}{{ post.published_at|date:"d/m/Y" }} · {% endif %}{{ post.reading_time }} phút đọc · {{ post.views }} lượt xem
           </div>
         </div>
       </div>
@@ -75,9 +91,24 @@
   </div>
   {% endif %}
 
-  <!-- BODY -->
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-9">
-    <div class="prose">{{ post.content|safe }}</div>
+  <!-- BODY + TOC -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-9">
+    <div class="lg:grid lg:gap-12" style="grid-template-columns:1fr 220px;">
+
+      <!-- Article body -->
+      <div>
+        <div id="article-body" class="prose max-w-3xl">{{ post.content|safe }}</div>
+      </div>
+
+      <!-- TOC sidebar -->
+      <aside class="hidden lg:block">
+        <div class="sticky top-20">
+          <div class="font-mono text-xs uppercase tracking-widest text-muted-3 mb-3">Mục lục</div>
+          <nav id="toc" class="font-mono text-xs text-muted-2 space-y-0.5"></nav>
+        </div>
+      </aside>
+
+    </div>
   </div>
 
   <!-- TAGS -->
@@ -106,9 +137,28 @@
     </div>
   </div>
 
+  <!-- PREV / NEXT -->
+  {% if prev_post or next_post %}
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 mb-10 sm:mb-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {% if prev_post %}
+      <a href="{% url 'posts:detail' prev_post.slug %}" class="group border border-border-2 rounded-sm p-4 hover:border-ink transition-colors">
+        <div class="font-mono text-xs text-muted-3 uppercase tracking-wider mb-1.5">← Bài trước</div>
+        <div class="font-heading font-semibold text-sm text-ink leading-snug group-hover:text-muted-1 transition-colors">{{ prev_post.title }}</div>
+      </a>
+      {% else %}<div></div>{% endif %}
+      {% if next_post %}
+      <a href="{% url 'posts:detail' next_post.slug %}" class="group border border-border-2 rounded-sm p-4 hover:border-ink transition-colors sm:text-right">
+        <div class="font-mono text-xs text-muted-3 uppercase tracking-wider mb-1.5">Bài tiếp →</div>
+        <div class="font-heading font-semibold text-sm text-ink leading-snug group-hover:text-muted-1 transition-colors">{{ next_post.title }}</div>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
   <!-- COMMENTS -->
   <div id="comments" class="max-w-3xl mx-auto px-4 sm:px-6 mb-10 sm:mb-14">
-
     <div class="flex items-center gap-3 mb-7">
       <div class="w-2 h-2 bg-ink shrink-0"></div>
       <span class="font-mono text-xs uppercase tracking-widest text-muted-3">
@@ -117,7 +167,6 @@
       <div class="flex-1 h-px bg-border"></div>
     </div>
 
-    <!-- approved comments -->
     {% for comment in comments %}
     <div class="mb-6 pb-6 border-b border-border last:border-0">
       <div class="flex items-center gap-3 mb-3">
@@ -135,7 +184,6 @@
     <p class="text-muted-3 font-mono text-sm mb-8">Chưa có bình luận. Hãy là người đầu tiên!</p>
     {% endfor %}
 
-    <!-- comment form -->
     <div class="mt-8 bg-bg-2 border border-border rounded-sm p-5 sm:p-6">
       <div class="font-mono text-xs uppercase tracking-wider text-muted-3 mb-5">Để lại bình luận</div>
       <form method="post" action="{% url 'posts:comment' post.slug %}">
@@ -206,11 +254,40 @@
 </main>
 
 <script>
+  // Reading progress
   const bar = document.getElementById('reading-progress');
   document.addEventListener('scroll', () => {
     const el = document.documentElement;
     const pct = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
     if (bar) bar.style.width = Math.min(pct, 100) + '%';
   }, { passive: true });
+
+  // Auto TOC
+  (function () {
+    const toc = document.getElementById('toc');
+    const body = document.getElementById('article-body');
+    if (!toc || !body) return;
+    const headings = body.querySelectorAll('h2, h3');
+    if (headings.length < 2) { toc.closest('aside').remove(); return; }
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'heading-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.className = (h.tagName === 'H3' ? 'indent ' : '') + 'text-muted-2 transition-colors hover:text-ink';
+      toc.appendChild(a);
+    });
+    const links = toc.querySelectorAll('a');
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const active = toc.querySelector('a[href="#' + e.target.id + '"]');
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '0px 0px -70% 0px' });
+    headings.forEach(h => obs.observe(h));
+  })();
 </script>
 {% endblock %}

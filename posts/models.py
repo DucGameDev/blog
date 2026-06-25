@@ -42,6 +42,7 @@ class Post(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_DRAFT)
     published_at = models.DateTimeField(null=True, blank=True)
     reading_time = models.PositiveIntegerField(default=1)
+    views = models.PositiveIntegerField(default=0)
     meta_title = models.CharField(max_length=70, blank=True)
     meta_description = models.CharField(max_length=160, blank=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')

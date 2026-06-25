@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, TemplateView
 from django.shortcuts import get_object_or_404, redirect
 from django.db.models import Q
 from django.urls import reverse
@@ -35,6 +35,11 @@ class PostDetailView(DetailView):
     def get_queryset(self):
         return Post.objects.filter(status=Post.STATUS_PUBLISHED).select_related('author', 'category')
 
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        Post.objects.filter(pk=obj.pk).update(views=obj.views + 1)
+        return obj
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['related_posts'] = Post.objects.filter(
@@ -43,6 +48,20 @@ class PostDetailView(DetailView):
         ).exclude(pk=self.object.pk).select_related('author', 'category')[:3]
         ctx['comments'] = self.object.comments.filter(approved=True)
         ctx['comment_count'] = ctx['comments'].count()
+
+        published = list(
+            Post.objects.filter(status=Post.STATUS_PUBLISHED)
+            .order_by('published_at')
+            .values_list('pk', flat=True)
+        )
+        try:
+            idx = published.index(self.object.pk)
+            ctx['prev_post'] = Post.objects.filter(pk=published[idx - 1]).first() if idx > 0 else None
+            ctx['next_post'] = Post.objects.filter(pk=published[idx + 1]).first() if idx < len(published) - 1 else None
+        except ValueError:
+            ctx['prev_post'] = None
+            ctx['next_post'] = None
+
         return ctx
 
 
@@ -101,6 +120,10 @@ class SearchView(ListView):
         ctx = super().get_context_data(**kwargs)
         ctx['query'] = self.request.GET.get('q', '')
         return ctx
+
+
+class AboutView(TemplateView):
+    template_name = 'about.html'
 
 
 def newsletter_subscribe(request):

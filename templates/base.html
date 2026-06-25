@@ -39,6 +39,7 @@
         {% for cat in nav_categories %}
         <a href="{% url 'posts:category' cat.slug %}" class="text-muted-3 hover:text-ink transition-colors">{{ cat.name }}</a>
         {% endfor %}
+        <a href="{% url 'posts:about' %}" class="text-muted-3 hover:text-ink transition-colors">Giới thiệu</a>
       </nav>
 
       <div class="flex items-center gap-3 sm:gap-4">
@@ -66,6 +67,7 @@
         <a href="{% url 'posts:category' cat.slug %}" class="font-mono text-xs uppercase tracking-widest text-muted-3 hover:text-ink transition-colors py-1">{{ cat.name }}</a>
         {% endfor %}
         <a href="{% url 'posts:search' %}" class="font-mono text-xs uppercase tracking-widest text-muted-3 hover:text-ink transition-colors py-1">Tìm kiếm</a>
+        <a href="{% url 'posts:about' %}" class="font-mono text-xs uppercase tracking-widest text-muted-3 hover:text-ink transition-colors py-1">Giới thiệu</a>
       </div>
     </div>
   </header>
@@ -81,6 +83,7 @@
         <span class="font-mono text-xs text-muted-4 ml-1.5">&copy; {% now "Y" %}</span>
       </div>
       <div class="flex gap-5 sm:gap-7 font-mono text-xs uppercase tracking-wider text-muted-3">
+        <a href="{% url 'posts:about' %}" class="hover:text-ink transition-colors">Giới thiệu</a>
         <a href="{% url 'posts:search' %}" class="hover:text-ink transition-colors">Tìm kiếm</a>
         <a href="{% url 'posts:rss' %}" class="hover:text-ink transition-colors">RSS</a>
         <a href="/sitemap.xml" class="hover:text-ink transition-colors">Sitemap</a>
