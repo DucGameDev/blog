@@ -16,6 +16,10 @@ secrets.json
 # Database
 db.sqlite3
 
+# Post exports (local only, không commit)
+posts_export*.csv
+posts_export*.json
+
 # Django
 staticfiles/
 media/
