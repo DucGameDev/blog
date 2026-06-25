@@ -4,18 +4,18 @@
 {% block title %}ducdev — blog công nghệ{% endblock %}
 
 {% block content %}
-<main class="max-w-7xl mx-auto px-10">
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
 
   <!-- ── HERO FEATURED ── -->
   {% if featured %}
-  <section class="py-12">
-    <div class="flex items-center gap-3 mb-7">
-      <div class="w-2 h-2 bg-accent"></div>
+  <section class="py-8 sm:py-12">
+    <div class="flex items-center gap-3 mb-6 sm:mb-7">
+      <div class="w-2 h-2 bg-accent shrink-0"></div>
       <span class="font-mono text-xs uppercase tracking-widest text-muted-3">Tiêu điểm</span>
       <div class="flex-1 h-px bg-border"></div>
     </div>
 
-    <div class="grid gap-10 items-center" style="grid-template-columns:1.25fr 1fr;">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center" style="--tw-cols:1.25fr 1fr;">
       <!-- thumbnail -->
       <a href="{% url 'posts:detail' featured.slug %}" class="block">
         {% if featured.thumbnail %}
@@ -30,22 +30,22 @@
       </a>
 
       <!-- meta -->
-      <div>
+      <div class="py-2">
         {% if featured.category %}
-        <div class="inline-flex items-center gap-1.5 bg-accent px-2.5 py-1 rounded-sm mb-5">
+        <div class="inline-flex items-center gap-1.5 bg-accent px-2.5 py-1 rounded-sm mb-4 sm:mb-5">
           <span class="font-mono text-xs uppercase font-bold tracking-wider text-ink">{{ featured.category.name }}</span>
         </div>
         {% endif %}
 
-        <h1 class="font-heading font-bold text-4xl leading-tight mb-4 text-ink" style="letter-spacing:-0.02em;line-height:1.08;">
+        <h1 class="font-heading font-bold text-2xl sm:text-3xl lg:text-4xl xl:text-5xl leading-tight text-ink mb-3 sm:mb-4" style="letter-spacing:-0.02em;line-height:1.08;">
           <a href="{% url 'posts:detail' featured.slug %}" class="hover:text-muted-1 transition-colors">{{ featured.title }}</a>
         </h1>
 
         {% if featured.excerpt %}
-        <p class="text-muted-1 mb-7 leading-relaxed" style="font-size:17px;">{{ featured.excerpt }}</p>
+        <p class="text-muted-1 mb-5 sm:mb-7 leading-relaxed text-sm sm:text-base lg:text-lg">{{ featured.excerpt }}</p>
         {% endif %}
 
-        <div class="flex items-center gap-3 font-mono text-sm text-muted-2">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 font-mono text-xs sm:text-sm text-muted-2">
           <span>{{ featured.author.get_full_name|default:featured.author.username }}</span>
           <span class="text-border-2">·</span>
           <span>{{ featured.reading_time }} phút đọc</span>
@@ -60,18 +60,18 @@
   {% endif %}
 
   <!-- ── BÀI MỚI NHẤT ── -->
-  <section class="py-4 pb-16">
-    <div class="flex items-center gap-3 mb-8">
-      <div class="w-2 h-2 bg-ink"></div>
+  <section class="py-4 pb-12 sm:pb-16">
+    <div class="flex items-center gap-3 mb-6 sm:mb-8">
+      <div class="w-2 h-2 bg-ink shrink-0"></div>
       <span class="font-mono text-xs uppercase tracking-widest text-muted-3">Bài mới nhất</span>
       <div class="flex-1 h-px bg-border"></div>
     </div>
 
     {% if posts %}
-    <div class="grid grid-cols-3 gap-x-8 gap-y-10">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 lg:gap-x-8 gap-y-8 sm:gap-y-10">
       {% for post in posts %}
       <article>
-        <a href="{% url 'posts:detail' post.slug %}" class="block mb-4">
+        <a href="{% url 'posts:detail' post.slug %}" class="block mb-3 sm:mb-4">
           {% if post.thumbnail %}
             <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}"
                  class="w-full object-cover rounded-sm border border-border"
@@ -84,15 +84,15 @@
         </a>
 
         {% if post.category %}
-        <span class="font-mono text-xs uppercase tracking-wider text-muted-3" style="letter-spacing:0.12em;">{{ post.category.name }}</span>
+        <span class="font-mono text-xs uppercase tracking-wider text-muted-3">{{ post.category.name }}</span>
         {% endif %}
 
-        <h3 class="font-heading font-semibold mt-2 mb-2.5 text-ink leading-snug" style="font-size:21px;letter-spacing:-0.01em;">
+        <h3 class="font-heading font-semibold text-lg sm:text-xl mt-2 mb-2 text-ink leading-snug" style="letter-spacing:-0.01em;">
           <a href="{% url 'posts:detail' post.slug %}" class="hover:text-muted-1 transition-colors">{{ post.title }}</a>
         </h3>
 
         {% if post.excerpt %}
-        <p class="text-muted-2 mb-3.5 leading-relaxed" style="font-size:14.5px;">{{ post.excerpt|truncatewords:20 }}</p>
+        <p class="text-muted-2 mb-3 leading-relaxed text-sm">{{ post.excerpt|truncatewords:20 }}</p>
         {% endif %}
 
         <span class="font-mono text-xs text-muted-3">
@@ -103,9 +103,8 @@
       {% endfor %}
     </div>
 
-    <!-- Pagination -->
     {% if is_paginated %}
-    <div class="mt-12 flex items-center justify-between font-mono text-xs text-muted-3">
+    <div class="mt-10 sm:mt-12 flex items-center justify-between font-mono text-xs text-muted-3">
       {% if page_obj.has_previous %}
         <a href="?page={{ page_obj.previous_page_number }}" class="border border-border-2 px-3 py-1.5 rounded-sm hover:border-ink hover:text-ink transition-colors">← trước</a>
       {% else %}<span></span>{% endif %}
@@ -122,21 +121,21 @@
   </section>
 
   <!-- ── NEWSLETTER ── -->
-  <section class="mb-16 bg-ink rounded-sm px-14 py-12 flex items-center justify-between gap-10">
+  <section class="mb-12 sm:mb-16 bg-ink rounded-sm px-6 sm:px-10 lg:px-14 py-8 sm:py-10 lg:py-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 md:gap-10">
     <div class="max-w-lg">
-      <div class="flex items-center gap-2 mb-3.5">
-        <div class="w-2.5 h-2.5 bg-accent"></div>
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-2 h-2 bg-accent shrink-0"></div>
         <span class="font-mono text-xs uppercase tracking-widest text-accent">Bản tin · thứ Năm hàng tuần</span>
       </div>
-      <h2 class="font-heading font-bold text-3xl text-surface mb-2.5" style="letter-spacing:-0.02em;line-height:1.12;">Năm phút công nghệ, không nhiều hơn</h2>
-      <p class="text-muted-4 leading-relaxed" style="font-size:15px;">Tóm tắt những gì thực sự đáng chú ý cho người làm sản phẩm.</p>
+      <h2 class="font-heading font-bold text-2xl sm:text-3xl text-surface mb-2" style="letter-spacing:-0.02em;line-height:1.12;">Năm phút công nghệ, không nhiều hơn</h2>
+      <p class="text-muted-4 leading-relaxed text-sm sm:text-base">Tóm tắt những gì thực sự đáng chú ý cho người làm sản phẩm.</p>
     </div>
-    <form class="flex gap-2.5 items-center shrink-0">
+    <form class="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center w-full md:w-auto shrink-0">
       {% csrf_token %}
       <input type="email" placeholder="ban@email.com"
-             class="bg-ink-3 border border-ink-3 text-muted-3 font-mono text-sm px-4 py-3.5 rounded-sm w-56 focus:outline-none focus:border-muted-3 placeholder-ink-3">
+             class="bg-ink-3 border border-ink-3 text-muted-3 font-mono text-sm px-4 py-3 rounded-sm w-full sm:w-56 focus:outline-none focus:border-muted-3">
       <button type="submit"
-              class="bg-accent text-ink font-mono text-xs font-bold uppercase tracking-wider px-5 py-3.5 rounded-sm hover:opacity-90 transition-opacity">
+              class="bg-accent text-ink font-mono text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-sm hover:opacity-90 transition-opacity whitespace-nowrap">
         Đăng ký →
       </button>
     </form>
