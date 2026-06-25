@@ -59,6 +59,11 @@ class PostResource(resources.ModelResource):
         ),
     )
     tags = fields.Field(column_name='tags', attribute=None)
+    published_at = fields.Field(
+        column_name='published_at',
+        attribute='published_at',
+        widget=widgets.DateTimeWidget(formats=['%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M']),
+    )
 
     class Meta:
         model = Post
@@ -81,10 +86,10 @@ class PostResource(resources.ModelResource):
             instance.tags.set(*[t.strip() for t in tag_str.split(',') if t.strip()])
 
     def before_import_row(self, row, row_number=None, **kwargs):
-        # Ensure published_at is timezone-aware on import
+        import re
         val = row.get('published_at')
-        if val and isinstance(val, str) and val and '+' not in val and 'Z' not in val:
-            row['published_at'] = val + '+07:00'
+        if val and isinstance(val, str):
+            row['published_at'] = re.sub(r'[+-]\d{2}:\d{2}$', '', val.strip())
 
 
 # ── Admin classes ─────────────────────────────────────────────────────────────
