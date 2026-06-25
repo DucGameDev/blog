@@ -54,8 +54,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'blog.wsgi.application'
 
 _DATABASE_URL = config('DATABASE_URL', default=None)
+_PGHOST = config('PGHOST', default=None)
+
 if _DATABASE_URL:
     DATABASES = {'default': dj_database_url.parse(_DATABASE_URL, conn_max_age=600)}
+elif _PGHOST:
+    # Railway inject PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD tự động
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('PGDATABASE'),
+            'USER': config('PGUSER'),
+            'PASSWORD': config('PGPASSWORD'),
+            'HOST': config('PGHOST'),
+            'PORT': config('PGPORT', default='5432'),
+        }
+    }
 else:
     DATABASES = {
         'default': {
