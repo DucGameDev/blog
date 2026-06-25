@@ -1,6 +1,5 @@
 venv/
 tailwindcss.exe
-static/css/style.css
 
 # Python
 __pycache__/
