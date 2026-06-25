@@ -46,28 +46,24 @@ class PostResource(resources.ModelResource):
             field='username',
         ),
     )
-    tags = fields.Field(column_name='tags', attribute='tags')
+    tags = fields.Field(column_name='tags', attribute=None)
 
     class Meta:
         model = Post
         import_id_fields = ('slug',)
-        exclude = ('id', 'thumbnail')
+        exclude = ('id', 'thumbnail', 'created_at', 'updated_at')
         export_order = (
             'slug', 'title', 'status', 'published_at',
             'excerpt', 'content',
             'author', 'category', 'tags',
             'reading_time', 'views',
             'meta_title', 'meta_description', 'note',
-            'created_at', 'updated_at',
         )
 
     def dehydrate_tags(self, post):
         return ','.join(t.name for t in post.tags.all())
 
-    def after_import_instance(self, instance, new, row_number=None, **kwargs):
-        pass
-
-    def after_save_instance(self, instance, row, using_transactions, dry_run):
+    def after_save_instance(self, instance, row, **kwargs):
         tag_str = row.get('tags', '')
         if tag_str:
             instance.tags.set(*[t.strip() for t in tag_str.split(',') if t.strip()])
