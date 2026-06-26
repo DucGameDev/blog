@@ -61,10 +61,28 @@
 
   <!-- ── BÀI MỚI NHẤT ── -->
   <section class="py-4 pb-12 sm:pb-16">
-    <div class="flex items-center gap-3 mb-6 sm:mb-8">
-      <div class="w-2 h-2 bg-ink shrink-0"></div>
-      <span class="font-mono text-xs uppercase tracking-widest text-muted-3">Bài mới nhất</span>
-      <div class="flex-1 h-px bg-border"></div>
+    <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-0 mb-6 sm:mb-8">
+      <div class="flex items-center gap-3 shrink-0">
+        <div class="w-2 h-2 {% if active_category %}bg-accent{% else %}bg-ink{% endif %} shrink-0"></div>
+        <span class="font-mono text-xs uppercase tracking-widest text-muted-3">
+          {% if active_category %}{{ active_category.name }}{% else %}Bài mới nhất{% endif %}
+        </span>
+      </div>
+      <div class="flex-1 h-px bg-border sm:mx-4 hidden sm:block"></div>
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <a href="/"
+           class="font-mono text-xs px-2.5 py-1 rounded-sm border transition-colors
+                  {% if not active_category %}border-ink text-ink{% else %}border-border text-muted-3 hover:border-ink hover:text-ink{% endif %}">
+          Tất cả
+        </a>
+        {% for cat in categories %}
+        <a href="?category={{ cat.slug }}"
+           class="font-mono text-xs px-2.5 py-1 rounded-sm border transition-colors
+                  {% if active_category.slug == cat.slug %}border-ink text-ink{% else %}border-border text-muted-3 hover:border-ink hover:text-ink{% endif %}">
+          {{ cat.name }}
+        </a>
+        {% endfor %}
+      </div>
     </div>
 
     {% if posts %}
@@ -106,11 +124,13 @@
     {% if is_paginated %}
     <div class="mt-10 sm:mt-12 flex items-center justify-between font-mono text-xs text-muted-3">
       {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}" class="border border-border-2 px-3 py-1.5 rounded-sm hover:border-ink hover:text-ink transition-colors">← trước</a>
+        <a href="?{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ page_obj.previous_page_number }}"
+           class="border border-border-2 px-3 py-1.5 rounded-sm hover:border-ink hover:text-ink transition-colors">← trước</a>
       {% else %}<span></span>{% endif %}
       <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
       {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}" class="border border-border-2 px-3 py-1.5 rounded-sm hover:border-ink hover:text-ink transition-colors">tiếp →</a>
+        <a href="?{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ page_obj.next_page_number }}"
+           class="border border-border-2 px-3 py-1.5 rounded-sm hover:border-ink hover:text-ink transition-colors">tiếp →</a>
       {% endif %}
     </div>
     {% endif %}

@@ -9,13 +9,22 @@ class PostListView(ListView):
     model = Post
     template_name = 'posts/index.html'
     context_object_name = 'posts'
-    paginate_by = 6
+    paginate_by = 9
 
     def _published(self):
         return Post.objects.filter(status=Post.STATUS_PUBLISHED).select_related('author', 'category')
 
+    def _active_category(self):
+        slug = self.request.GET.get('category', '').strip()
+        if slug:
+            return Category.objects.filter(slug=slug).first()
+        return None
+
     def get_queryset(self):
         qs = self._published()
+        cat = self._active_category()
+        if cat:
+            return qs.filter(category=cat)
         featured = qs.first()
         if featured:
             return qs.exclude(pk=featured.pk)
@@ -23,7 +32,11 @@ class PostListView(ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['featured'] = self._published().first()
+        cat = self._active_category()
+        ctx['active_category'] = cat
+        ctx['categories'] = Category.objects.all()
+        if not cat:
+            ctx['featured'] = self._published().first()
         return ctx
 
 

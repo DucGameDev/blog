@@ -5,7 +5,8 @@
 - Django Admin (viết bài)
 - django-ckeditor (rich text editor)
 - django-taggit (tags)
-- PostgreSQL (production Railway), MySQL (local)
+- django-import-export (import/export bài viết)
+- PostgreSQL (production Railway), MySQL (local dev)
 - WhiteNoise (static files)
 - Tailwind CSS v4 (standalone CLI, không cần Node.js)
 - Railway deploy
@@ -17,7 +18,7 @@
 - Context processor `posts.context_processors.nav_categories` inject `nav_categories` vào mọi template
 
 ## Models
-Post: title, slug, excerpt, content, thumbnail,
+Post: title, slug, excerpt, content, thumbnail (URLField),
       status (draft/published), published_at,
       reading_time, views, meta_title, meta_description,
       author (FK User), category (FK Category), tags (TaggableManager)
@@ -26,10 +27,30 @@ Category: name, slug, description
 Subscriber: email, subscribed_at, active
 Comment: post (FK), name, email, content, created_at, approved
 
+## Templates
+- `base.html` — layout chính, nav + footer
+- `posts/index.html` — trang chủ, hero + danh sách bài
+- `posts/detail.html` — chi tiết bài viết
+- `posts/category.html` — lọc theo category
+- `posts/tag.html` — lọc theo tag
+- `posts/search.html` — trang tìm kiếm
+- `about.html` — trang giới thiệu
+- `404.html`, `500.html` — error pages
+
+## Features
+- RSS feed: `posts/feeds.py`
+- Sitemap: `posts/sitemaps.py`
+- `robots.txt` phục vụ qua template
+
+## Management Commands
+- `create_post --json "<json>"` — tạo bài draft từ JSON (dùng với Claude Code)
+- `export_posts` — export bài viết ra JSON
+- `import_posts` — import bài viết từ JSON
+
 ## Packages
-pip install django django-ckeditor django-taggit django-extensions
-pip install pillow whitenoise psycopg2-binary python-decouple gunicorn
-pip install dj-database-url mysqlclient
+pip install django django-ckeditor django-taggit django-extensions django-import-export
+pip install whitenoise psycopg2-binary python-decouple gunicorn dj-database-url
+pip install mysqlclient  # chỉ local, không commit vào requirements.txt
 
 ## Design system
 - Background: `#FBFBF8` (warm white)
@@ -39,9 +60,10 @@ pip install dj-database-url mysqlclient
 - Muted text: `#8A897E` / `#A8A89C`
 - Font heading: Space Grotesk (700)
 - Font body: Manrope (400/600)
-- Font mono: JetBrains Mono — dùng cho metadata, labels, tags, nav links
-- Bo góc: `rounded-sm` (2px) cho buttons/chips, `rounded-sm` (3px) cho ảnh/cards
+- Font mono: JetBrains Mono — metadata, labels, tags, nav links
+- Bo góc: `rounded-sm` cho buttons/chips và ảnh/cards
 - Không dùng gradient
+- Thumbnail: luôn dùng URL ảnh ngoài (URLField), không upload file
 
 ## Responsive — áp dụng mọi template
 - **Mobile-first**, breakpoints: `sm` 640px · `md` 768px · `lg` 1024px
@@ -75,10 +97,9 @@ pip install dj-database-url mysqlclient
 
 ## Deploy Railway
 ### File bắt buộc
-- requirements.txt — viết bằng Python, không dùng PowerShell `>` (tránh UTF-16 BOM)
-- Procfile: `web: python manage.py collectstatic --noinput && gunicorn blog.wsgi --bind 0.0.0.0:$PORT`
-- runtime.txt: `python-3.12.9` (không dùng 3.12.0)
-- Không commit `mysqlclient` vào requirements.txt (Railway dùng PostgreSQL)
+- `requirements.txt` — viết bằng Python (`pip freeze > requirements.txt`), không dùng PowerShell `>` (tránh UTF-16 BOM). Xóa `mysqlclient` trước khi commit.
+- `Procfile`: `web: python manage.py collectstatic --noinput && gunicorn blog.wsgi --bind 0.0.0.0:$PORT`
+- `runtime.txt`: `python-3.12.9`
 
 ### Settings
 - Dùng python-decouple để đọc biến môi trường

@@ -3,7 +3,27 @@ from django.contrib import admin
 from django.utils import timezone
 from import_export import resources, fields, widgets
 from import_export.admin import ImportExportModelAdmin, ExportActionMixin
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from .models import Post, Category, Subscriber, Comment
+
+
+class StatusFilter(admin.SimpleListFilter):
+    title = 'Trạng thái'
+    parameter_name = 'status'
+
+    def lookups(self, request, model_admin):
+        qs = model_admin.get_queryset(request)
+        published = qs.filter(status=Post.STATUS_PUBLISHED).count()
+        draft = qs.filter(status=Post.STATUS_DRAFT).count()
+        return [
+            (Post.STATUS_PUBLISHED, f'Đã publish ({published})'),
+            (Post.STATUS_DRAFT, f'Draft ({draft})'),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(status=self.value())
+        return queryset
 
 
 # ── Datetime widget ───────────────────────────────────────────────────────────
@@ -18,6 +38,10 @@ class DateTimeLocalInput(forms.DateTimeInput):
 
 
 class PostAdminForm(forms.ModelForm):
+    content = forms.CharField(
+        widget=CKEditorUploadingWidget(),
+        label='Content',
+    )
     published_at = forms.DateTimeField(
         widget=DateTimeLocalInput(format='%Y-%m-%dT%H:%M'),
         input_formats=['%Y-%m-%dT%H:%M'],
@@ -100,7 +124,23 @@ class CategoryAdmin(admin.ModelAdmin):
 class PostAdmin(ExportActionMixin, ImportExportModelAdmin):
     form = PostAdminForm
     resource_classes = [PostResource]
+    actions = ['make_published', 'make_draft']
     list_display = ('thumbnail_preview', 'title', 'author', 'category', 'status', 'published_at', 'reading_time')
+
+    @admin.action(description='Publish bài đã chọn')
+    def make_published(self, request, queryset):
+        updated = queryset.filter(status=Post.STATUS_DRAFT).update(
+            status=Post.STATUS_PUBLISHED,
+            published_at=timezone.now(),
+        )
+        self.message_user(request, f'{updated} bài đã được publish.')
+
+    @admin.action(description='Chuyển về draft')
+    def make_draft(self, request, queryset):
+        updated = queryset.filter(status=Post.STATUS_PUBLISHED).update(
+            status=Post.STATUS_DRAFT,
+        )
+        self.message_user(request, f'{updated} bài đã chuyển về draft.')
 
     @admin.display(description='Ảnh')
     def thumbnail_preview(self, obj):
@@ -121,7 +161,7 @@ class PostAdmin(ExportActionMixin, ImportExportModelAdmin):
                 obj.thumbnail
             )
         return '(chưa có ảnh)'
-    list_filter = ('status', 'category', 'author')
+    list_filter = (StatusFilter, 'category', 'author')
     search_fields = ('title', 'excerpt', 'content')
     prepopulated_fields = {'slug': ('title',)}
     raw_id_fields = ('author',)
